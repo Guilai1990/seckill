@@ -25,6 +25,8 @@ public class CodeMsg {
     //order module 5004XX
 
     //seckill module 5005XX
+    public static CodeMsg SECKILL_OVER = new CodeMsg(500500, "seckill goods sell out");
+    public static CodeMsg REPEATE_SECKILL = new CodeMsg(500501, "one seckill good per one");
 
     public CodeMsg fillArgs(Object...args) {
         int code = this.code;

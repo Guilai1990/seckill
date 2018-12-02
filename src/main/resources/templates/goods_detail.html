@@ -68,4 +68,32 @@
 </div>
 
 </body>
+<script>
+    $(function () {
+        countDown();
+    });
+    function countDown() {
+        var remainSeconds = $("#remainSeconds").val();
+        var timeout;
+        if(remainSeconds > 0) {//seckill not start yet, countdown
+            $("#buyButton").attr("disabled", true);
+            timeout = setTimeout(function () {
+                $("#countDown").text(remainSeconds - 1);
+                $("#remainSeconds").val(remainSeconds - 1);
+                countDown();
+            }, 1000);
+
+
+        } else if (remainSeconds == 0) {//seckill is on going
+            $("#buyButton").attr("disabled", false);
+            if (timeout) {
+                clearTimeout();
+            }
+            $("#seckillTip").html("秒杀进行中");
+        } else {// seckill completed
+            $("#buyButton").attr("disabled", true);
+            $("#seckillTip").html("秒杀已经结束");
+        }
+    }
+</script>
 </html>
