@@ -2,7 +2,9 @@ package com.bruce.seckill.redis;
 
 public class OrderKey extends KeyPrefixImpl {
 
-    public OrderKey(int expireSeconds, String prefix) {
-        super(expireSeconds, prefix);
+    public OrderKey(String prefix) {
+        super(prefix);
     }
+
+    public static OrderKey getSeckillOrderByUidGid = new OrderKey("moug");
 }

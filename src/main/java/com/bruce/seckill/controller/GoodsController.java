@@ -3,8 +3,10 @@ package com.bruce.seckill.controller;
 import com.bruce.seckill.domain.SeckillUser;
 import com.bruce.seckill.redis.GoodsKey;
 import com.bruce.seckill.redis.RedisService;
+import com.bruce.seckill.result.Result;
 import com.bruce.seckill.service.GoodsService;
 import com.bruce.seckill.service.SeckillUserService;
+import com.bruce.seckill.vo.GoodsDetailVo;
 import com.bruce.seckill.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,10 +53,7 @@ public class GoodsController {
                           Model model,
                           SeckillUser user) {
         model.addAttribute("user", user);
-        // query goods list
-
-//        return "goods_list";
-        // get cache data
+      // get data from cache
         String html = redisService.get(GoodsKey.getGoodsList, "", String.class);
         if (!StringUtils.isEmpty(html)) {
             return html;
@@ -71,9 +70,54 @@ public class GoodsController {
         return html;
     }
 
-    @RequestMapping(value = "/to_detail/{goodsId}", produces = "text/html")
+    @RequestMapping(value = "/detail/{goodsId}")
     @ResponseBody
-    public String toDetail(HttpServletRequest request,
+    public Result<GoodsDetailVo> toDetail(HttpServletRequest request,
+                                          HttpServletResponse response,
+                                          Model model,
+                                          SeckillUser user,
+                                          @PathVariable("goodsId")long goodsId) {
+        model.addAttribute("user", user);
+
+
+
+        GoodsVo goodsVo = goodsService.getGoodsVoByGoodsId(goodsId);
+
+
+        // manual rendering
+
+        long startAt = goodsVo.getStartDate().getTime();
+        long endAt = goodsVo.getEndDate().getTime();
+        long now = System.currentTimeMillis();
+        int seckillStatus = 0;
+        int remainSeconds = 0;
+
+        if (now < startAt) {
+            //seckill not start yet
+            seckillStatus = 0;
+            remainSeconds = (int)((startAt - now)/1000);
+        } else if (now > endAt){
+            //seckill finish already
+            seckillStatus = 2;
+            remainSeconds = -1;
+        } else {
+            // seckilling
+            seckillStatus = 1;
+            remainSeconds = 0;
+        }
+
+        GoodsDetailVo goodsDetailVo = new GoodsDetailVo();
+        goodsDetailVo.setGoods(goodsVo);
+        goodsDetailVo.setSeckillUser(user);
+        goodsDetailVo.setRemainSeconds(remainSeconds);
+        goodsDetailVo.setSeckillStatus(seckillStatus);
+        return Result.success(goodsDetailVo);
+    }
+
+
+    @RequestMapping(value = "/to_detail2/{goodsId}", produces = "text/html")
+    @ResponseBody
+    public String toDetail2(HttpServletRequest request,
                            HttpServletResponse response,
                            Model model,
                            SeckillUser user,
@@ -115,7 +159,7 @@ public class GoodsController {
         }
         model.addAttribute("seckillStatus", seckillStatus);
         model.addAttribute("remainSeconds", remainSeconds);
-       // return "goods_detail";
+        // return "goods_detail";
 
         SpringWebContext ctx = new SpringWebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap(), applicationContext);
         // manual rendering
@@ -125,8 +169,6 @@ public class GoodsController {
         }
         return html;
     }
-
-
 
 
 }

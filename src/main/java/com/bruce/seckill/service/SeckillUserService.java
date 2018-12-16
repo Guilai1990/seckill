@@ -28,9 +28,38 @@ public class SeckillUserService {
     RedisService redisService;
 
     public SeckillUser getById(long id) {
-        return seckillUserDao.getById(id);
+        // get cache data
+        SeckillUser user = redisService.get(SeckillUserKey.getById, ""+id, SeckillUser.class);
+        if (user != null) {
+            return user;
+        }
+        // get data from DB
+        user = seckillUserDao.getById(id);
+        if (user != null) {
+            redisService.set(SeckillUserKey.getById, ""+id, user);
+        }
+        return user;
     }
 
+    public boolean updatePassword(String token, long id, String formPass) {
+        // get user information
+        SeckillUser user = getById(id);
+        if (user == null) {
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+        }
+        // update DB
+        SeckillUser toBeUpdate = new SeckillUser();
+        toBeUpdate.setId(id);
+        toBeUpdate.setPassword(MD5Util.formPassToDBPass(formPass, user.getSalt()));
+        seckillUserDao.update(toBeUpdate);
+        // handle cache
+        redisService.delete(SeckillUserKey.getById, ""+id);
+        user.setPassword(toBeUpdate.getPassword());
+        redisService.set(SeckillUserKey.token, token, user);
+        return true;
+
+
+    }
 
     public boolean login(HttpServletResponse response, LoginVo loginVo) {
         if (loginVo == null) {

@@ -6,7 +6,8 @@ public class SeckillUserKey extends BasePrefix {
     private SeckillUserKey(int expireSeconds, String prefix) {
         super(expireSeconds, prefix);
     }
-    public static SeckillUserKey token = new SeckillUserKey(TOKEN_EXPIRE,"id");
+    public static SeckillUserKey token = new SeckillUserKey(TOKEN_EXPIRE,"tk");
+    public  static SeckillUserKey getById = new SeckillUserKey(0, "id");
 
 
 }

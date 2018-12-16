@@ -20,9 +20,11 @@ public class CodeMsg {
     public static CodeMsg MOBILE_NOT_EXIST = new CodeMsg(500214, "telephone number not exist");
     public static CodeMsg PASSWORD_ERROR = new CodeMsg(500215, "password not correct");
 
+
     //product module 5003XX
 
     //order module 5004XX
+    public static CodeMsg ORDER_NOT_EXIST = new CodeMsg(500400, "order not exist");
 
     //seckill module 5005XX
     public static CodeMsg SECKILL_OVER = new CodeMsg(500500, "seckill goods sell out");

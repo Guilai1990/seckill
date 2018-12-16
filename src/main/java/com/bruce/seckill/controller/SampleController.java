@@ -2,6 +2,7 @@ package com.bruce.seckill.controller;
 
 
 import com.bruce.seckill.domain.User;
+import com.bruce.seckill.rabbitmq.MQSender;
 import com.bruce.seckill.redis.RedisService;
 import com.bruce.seckill.redis.UserKey;
 import com.bruce.seckill.result.CodeMsg;
@@ -23,10 +24,21 @@ public class SampleController {
     @Autowired
     RedisService redisService;
 
+    @Autowired
+    MQSender mqSender;
+
     @RequestMapping("/")
     @ResponseBody
     String home() {
         return "Hello world!";
+    }
+
+    @RequestMapping("/mq")
+    @ResponseBody
+    public Result<String> mq() {
+        mqSender.send("hello, this is rabbitmq");
+        return Result.success("hello, bruce");
+        //return new Result(0, "success", "hello,bruce");
     }
 
     @RequestMapping("/hello")
