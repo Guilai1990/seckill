@@ -94,6 +94,42 @@
         });
     }
 
+    function getSeckillResult(goodsId) {
+        g_showLoading();
+        $.ajax({
+            url:"/seckill/result",
+            type:"GET",
+            data:{
+                goodsId:$("#goodsId").val(),
+            },
+            success:function (data) {
+                if (data.code == 0) {
+                     var result = data.data;
+                     if (result < 0) {
+                         layer.msg("Sorry, you don't get the seckill good")
+                     } else if (result == 0)  {
+                         setTimeout(function () {
+                          getSeckillResult(goodsId);
+                         }, 50)
+                     } else {
+                         layer.confirm("Congratulations, you got the seckill good! Check the order now?", {btn:["sure", "cancel"]},
+                         function () {
+                             window.location.href="/order_detail.htm?orderId="+result;
+                         },
+                         function () {
+                             layer.closeAll();
+                         });
+                     }
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error:function () {
+                layer.msg("client request error")
+            }
+        })
+    }
+
     function doSeckill() {
         $.ajax({
             url:"/seckill/do_seckill",
@@ -103,8 +139,8 @@
             },
             success:function (data) {
                 if (data.code == 0) {
-                    window.location.href="/order_detail.htm?orderId="+data.date.id;
-                    //getSeckillResult($("#goodsId").val());
+                    // window.location.href="/order_detail.htm?orderId="+data.date.id;
+                    getSeckillResult($("#goodsId").val());
                 } else {
                     layer.msg(data.msg);
                 }

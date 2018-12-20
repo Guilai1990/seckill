@@ -33,13 +33,37 @@ public class SampleController {
         return "Hello world!";
     }
 
-    @RequestMapping("/mq")
-    @ResponseBody
-    public Result<String> mq() {
-        mqSender.send("hello, this is rabbitmq");
-        return Result.success("hello, bruce");
-        //return new Result(0, "success", "hello,bruce");
-    }
+//    @RequestMapping("/mq/header")
+//    @ResponseBody
+//    public Result<String> header() {
+//        mqSender.sendHeader("hello, this is header pattern");
+//        return Result.success("hello, header");
+//
+//    }
+//
+//    @RequestMapping("/mq/fanout")
+//    @ResponseBody
+//    public Result<String> fanout() {
+//        mqSender.sendFanout("hello, this is fanout pattern");
+//        return Result.success("hello, fanout");
+//
+//    }
+//
+//    @RequestMapping("/mq/topic")
+//    @ResponseBody
+//    public Result<String> topic() {
+//        mqSender.sendTopic("hello, this is topic pattern");
+//        return Result.success("hello, topic");
+//
+//    }
+//
+//    @RequestMapping("/mq")
+//    @ResponseBody
+//    public Result<String> mq() {
+//        mqSender.send("hello, this is rabbitmq");
+//        return Result.success("hello, bruce");
+//        //return new Result(0, "success", "hello,bruce");
+//    }
 
     @RequestMapping("/hello")
     @ResponseBody
