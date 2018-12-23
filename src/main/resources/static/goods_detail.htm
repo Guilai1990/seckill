@@ -17,6 +17,16 @@
     <script type="text/javascript" src="/js/md5.min.js"></script>
     <!-- common.js -->
     <script type="text/javascript" src="/js/common.js"></script>
+    <style type="text/css">
+        html,body{
+            height:100%;
+            width:100%;
+        }
+
+        #goodslist td{
+            border-top:1px solid #39503f61;
+        }
+    </style>
 </head>
 <body>
 
@@ -24,7 +34,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">秒杀商品详情</div>
     <div class="panel-body">
-        <span id = "usetTip"> 您还没有登录，请登陆后再操作<br/></span>
+        <span id = "userTip"> 您还没有登录，请登陆后再操作<br/></span>
         <span>没有收货地址的提示。。。</span>
     </div>
     <table class="table" id="goodslist">
@@ -50,7 +60,13 @@
                     <input type="hidden" name="goodsId" id="goodsId"/>
                 </form>
                 -->
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doSeckill()">立即秒杀</button>
+                <div class="row">
+                    <div class="form-inline">
+                        <img id="verifyCodeImg"width="80"height="32"style="display:none" onclick="refreshVerifyCode()"/>
+                        <input id="verifyCode" class="form-control"style="display:none"/>
+                        <button class="btn btn-primary" type="button" id="buyButton" onclick="getSeckillPath()">立即秒杀</button>
+                    </div>
+                </div>
                 <input type="hidden" name="goodsId" id="goodsId"/>
             </td>
         </tr>
@@ -71,21 +87,23 @@
 
 </body>
 <script>
-    $(function () {
-       // countDown();
-        getDetail();
-    });
-    
-    function getDetail() {
-        var goodsId = g_getQueryString("goodsId");
+
+    function getSeckillPath() {
+        var goodsId = $("#goodsId").val();
+        g_showLoading();
         $.ajax({
-            url:"/goods/detail/" + goodsId,
+            url:"/seckill/path",
             type:"GET",
+            data:{
+                goodsId:goodsId,
+                verifyCode:$("#verifyCode").val()
+            },
             success:function (data) {
-                if (data.code == 0 ) {
-                    render(data.data);
+                if (data.code == 0) {
+                    var path = data.data;
+                    doSeckill(path);
                 } else {
-                    layer.msg("data.msg");
+                    layer.msg(data.msg);
                 }
             },
             error:function () {
@@ -93,6 +111,8 @@
             }
         });
     }
+
+
 
     function getSeckillResult(goodsId) {
         g_showLoading();
@@ -130,12 +150,12 @@
         })
     }
 
-    function doSeckill() {
+    function doSeckill(path) {
         $.ajax({
-            url:"/seckill/do_seckill",
+            url:"/seckill/" + path + "/do_seckill",
             type:"POST",
             data:{
-                goodsId:$("#goodsId").val(),
+                goodsId:$("#goodsId").val()
             },
             success:function (data) {
                 if (data.code == 0) {
@@ -170,6 +190,30 @@
         countDown();
     }
 
+    $(function () {
+        // countDown();
+        getDetail();
+    });
+
+    function getDetail() {
+        var goodsId = g_getQueryString("goodsId");
+        $.ajax({
+            url:"/goods/detail/" + goodsId,
+            type:"GET",
+            success:function (data) {
+                if (data.code == 0 ) {
+                    render(data.data);
+                } else {
+                    layer.msg("data.msg");
+                }
+            },
+            error:function () {
+                layer.msg("client request error");
+            }
+        });
+    }
+
+
     function countDown() {
         var remainSeconds = $("#remainSeconds").val();
         var timeout;
@@ -189,10 +233,18 @@
                 clearTimeout();
             }
             $("#seckillTip").html("秒杀进行中");
+            $("#verifyCodeImg").attr("src","/seckill/verifyCode?goodsId="+$("#goodsId").val());
+            $("#verifyCodeImg").show();
+            $("#verifyCode").show();
         } else {// seckill completed
             $("#buyButton").attr("disabled", true);
             $("#seckillTip").html("秒杀已经结束");
+            $("#verifyCodeImg").hide();
+            $("#verifyCode").hide();
         }
+    }
+    function refreshVerifyCode(){
+        $("#verifyCodeImg").attr("src", "/seckill/verifyCode?goodsId="+$("#goodsId").val()+"&timestamp="+new Date().getTime());
     }
 </script>
 </html>
